@@ -193,6 +193,7 @@
   <ItemGroup>
     <ClInclude Include="midl-x64\pwrmgr_h.h" />
     <ClInclude Include="midl-x86\pwrmgr_h.h" />
+    <ClInclude Include="powermanager.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +209,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="powermanager.c" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="pwrmgr.idl" />

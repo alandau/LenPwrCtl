@@ -1,16 +1,6 @@
 #include <Windows.h>
 #include "resource.h"
 
-void* __RPC_USER midl_user_allocate(size_t bytes)
-{
-	return malloc(bytes);
-}
-
-void __RPC_USER midl_user_free(void __RPC_FAR* p)
-{
-	free(p);
-}
-
 INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {

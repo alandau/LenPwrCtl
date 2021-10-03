@@ -36,6 +36,9 @@
     <ClInclude Include="midl-x64\pwrmgr_h.h">
       <Filter>Header Files\midl-x64</Filter>
     </ClInclude>
+    <ClInclude Include="powermanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LenPwrCtl.rc">
@@ -51,6 +54,9 @@
     </ClCompile>
     <ClCompile Include="midl-x64\pwrmgr_c.c">
       <Filter>Source Files\midl-x64</Filter>
+    </ClCompile>
+    <ClCompile Include="powermanager.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
