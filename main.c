@@ -55,6 +55,8 @@ static void InitBatteryListView(HWND hListView, size_t numBatteries)
 
 static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
 {
+	ListView_DeleteAllItems(hListView);
+
 	LVITEM item;
 
 	item.mask = LVIF_TEXT;
@@ -130,6 +132,8 @@ static int AddBatteryListViewBoolItem(HWND hListView, PowerInfo* p, const wchar_
 
 static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 {
+	ListView_DeleteAllItems(hListView);
+
 #define INT_FIELD(title, format, field) AddBatteryListViewIntItem(hListView, p, title, format, \
 			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
 #define BOOL_FIELD(title, field) AddBatteryListViewBoolItem(hListView, p, title, \
@@ -189,6 +193,20 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 	case WM_DESTROY:
 		FreePowerInfo(p->powerInfo);
 		free(p);
+		return TRUE;
+	case WM_COMMAND:
+		switch (LOWORD(wParam)) {
+		case IDC_REFRESH_BUTTON:
+			UpdatePowerInfo(p->powerInfo);
+			if (p->powerInfo->errorStr) {
+				MessageBox(hDlg, p->powerInfo->errorStr, PROGRAM_NAME, MB_OK | MB_ICONERROR);
+				EndDialog(hDlg, 0);
+				return TRUE;
+			}
+			UpdateGeneralListView(p->generalListView, p->powerInfo);
+			UpdateBatteryListView(p->batteryListView, p->powerInfo);
+			break;
+		}
 		return TRUE;
 	}
 	return FALSE;
