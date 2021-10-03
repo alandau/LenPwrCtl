@@ -2,6 +2,7 @@
 #include <CommCtrl.h>
 #include "resource.h"
 #include "powermanager.h"
+#include "dialog.h"
 
 #define PROGRAM_NAME L"LenPwrCtl"
 
@@ -139,6 +140,6 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
 	InitCommonControls();
-	DialogBox(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, MainDlgProc);
+	DialogBoxWithDefaultFont(hInstance, MAKEINTRESOURCE(IDD_MAIN_DIALOG), NULL, MainDlgProc);
 	return 0;
 }

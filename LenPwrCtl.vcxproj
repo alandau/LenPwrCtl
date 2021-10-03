@@ -207,6 +207,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dialog.h" />
     <ClInclude Include="midl-x64\pwrmgr_h.h" />
     <ClInclude Include="midl-x86\pwrmgr_h.h" />
     <ClInclude Include="powermanager.h" />
@@ -216,6 +217,7 @@
     <ResourceCompile Include="LenPwrCtl.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dialog.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="midl-x64\pwrmgr_c.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
