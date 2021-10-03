@@ -1,0 +1,405 @@
+[
+uuid(af8abfc6-2132-4870-bf8d-bca541ffcf0b),
+version(1.0),
+]
+interface LenPowCtl
+{
+
+void LpcCreateContext( // 0
+	[in]handle_t Binding,
+	[out][context_handle] void** Context);
+
+void LpcFreeContext( // 1
+	[in][out][context_handle] void** Context);
+
+void LpcIsEasyResumeCapable( // 2
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void LpcIsApsInformationCapable( // 3
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void LpcIsCoolModeCapable( // 4
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void LpcIsIntelligentCoolingCapable( // 5
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void LpcIsIntelligentCoolingAutoModeSupport( // 6
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void Proc7(
+	[in][context_handle] void* Context, 
+	[out]short *arg_1);
+
+void LpcIsAirplanePowerModeCapable( // 8
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void LpcIsAlwaysOnUsbCapable( // 9
+	[in][context_handle] void* Context, 
+	[out]short *Capable);
+
+void Proc10(
+	[in][context_handle] void* Context, 
+	[out]short *arg_1);
+
+void Proc11(
+	[in][context_handle] void* Context, 
+	[out]short *arg_1);
+
+void Proc12(
+	[in][context_handle] void* Context, 
+	[out]long *arg_1);
+
+void Proc13(
+	[in][context_handle] void* Context, 
+	[out]long *arg_1);
+
+void Proc14(
+	[in][context_handle] void* Context, 
+	[out]long *arg_1);
+
+void LpcGetAlwaysOnUSBValue( // 15
+	[in][context_handle] void* Context, 
+	[out]long *Value);
+
+void Proc16(
+	[in][context_handle] void* Context, 
+	[out]long *arg_1);
+
+void Proc17(
+	[in][context_handle] void* Context, 
+	[out]short *arg_1);
+
+void Proc18(
+	[in][context_handle] void* Context, 
+	[out]short *arg_1);
+
+void LpcGetAirplanePowerModeAutoDetection( // 19
+	[in][context_handle] void* Context, 
+	[out]short *Value);
+
+void LpcGetAirplanePowerMode(  // 20
+	[in][context_handle] void* Context, 
+	[out]short *Value);
+
+void LpcGetIntelligentCoolingAutoMode( // 21
+	[in][context_handle] void* Context, 
+	[out]short *Value);
+
+void LpcGetIntelligentCooling( // 22
+	[in][context_handle] void* Context, 
+	[out]short *Value);
+
+void LpcGetCoolMode( // 23
+	[in][context_handle] void* Context, 
+	[out]short *Value);
+
+void Proc24(
+	[in][context_handle] void* Context, 
+	[out]short *arg_1);
+
+void Proc25(
+	[in][context_handle] void* Context, 
+	[in]short arg_1);
+
+void Proc26(
+	[in][context_handle] void* Context, 
+	[in]short arg_1);
+
+void LpcSetAirplanePowerModeAutoDetection( // 27
+	[in][context_handle] void* Context, 
+	[in]short Value);
+
+void LpcSetAirplanePowerMode( // 28
+	[in][context_handle] void* Context, 
+	[in]short Value);
+
+void LpcSetIntelligentCoolingAutoMode( // 29
+	[in][context_handle] void* Context, 
+	[in]short Value);
+
+void LpcSetIntelligentCooling( // 30
+	[in][context_handle] void* Context, 
+	[in]short Value);
+
+void LpcSetCoolMode( // 31
+	[in][context_handle] void* Context, 
+	[in]short Value);
+
+void Proc32(
+	[in][context_handle] void* Context, 
+	[in]short arg_1);
+
+void LpcSetAlwaysOnUSB( // 33
+	[in][context_handle] void* Context, 
+	[in]long Value);
+
+void LpcQueryGaugeResetCapability( // 34
+	[in][context_handle] void* Context, 
+	[out]short *Value, 
+	[in]long BatteryNum);
+
+void LpcGetChargeThreshold( // 35
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]short *Capable, 
+	[out]short *Enabled, 
+	[out]long *Start, 
+	[out]long *Stop);
+
+void LpcGetReconditionState( // 36
+	[in][context_handle] void* Context, 
+	[out]long *Battery, 
+	[out]long *Stage, 
+	[out]long *StageNum);
+
+void LpcGetResetResult( // 37
+	[in][context_handle] void* Context, 
+	[in][string] wchar_t* BarCode, 
+	[out]long *ErrorValue, 
+	[out]long *TickHigh, 
+	[out]long *TickLow);
+
+void LpcStartBatteryGaugeReset( // 38
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum);
+
+void LpcStopBatteryGaugeReset( // 39
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum);
+
+void LpcSetChargeThreshold( // 40
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[in]long Start, 
+	[in]long Stop);
+
+void LpcGetFullChargeCapacity( // 41
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetDesignCapacity( // 42
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetDesignVoltage( // 43
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value,
+	[out]short *Capable);
+
+void LpcGetSerialNumber( // 44
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetAcAdapterWattage( // 45
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value,
+	[out]short *Capable);
+
+void LpcGetVoltage( // 46
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetCurrent( // 47
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetTemperature( // 48
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetCycleCount( // 49
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetRemainingPercentage( // 50
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetRemainingCapacity( // 51
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetRemainingTime( // 52
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetChargeCompletionTime( // 53
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetChargeStatus( // 54
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetDeviceChemistry( // 55
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetHealthStatus( // 56
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value, 
+	[out]short *Capable);
+
+void LpcGetIsAcAttached( // 57
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]short *Value);
+
+void LpcGetIsOnLowerThreshold( // 58
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]short *Value);
+
+void LpcGetCondition( // 59
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value);
+
+void LpcGetControllerType( // 60
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *Value);
+
+void LpcGetWarrantyInfo( // 61
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Value);
+
+void LpcGetDeviceName( // 62
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *BufferLen, 
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer, 
+	[out]short *Capable);
+
+void LpcGetBarCodeNumber( // 63
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *BufferLen,
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer,
+	[out]short *Capable);
+
+void LpcGetFirstUsedDate( // 64
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *BufferLen, 
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer, 
+	[out]short *Capable);
+
+void LpcGetManufacturerName( // 65
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *BufferLen, 
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer);
+
+void LpcGetLastConditionDate( // 66
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *BufferLen, 
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer);
+
+void LpcGetManufactureDate( // 67
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum,
+	[out]long *BufferLen,
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer);
+
+void LpcGetSpecificationInfo( // 68
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *Version, 
+	[out]long *Revision, 
+	[out]short *Capable);
+
+void LpcGetSBSExData(
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[out]long *ACSourceInfo, 
+	[out]short *WarrantyValid, 
+	[out]short *NonReplaceableBattery);
+
+void LpcUpdateSmartBatteryStatus(  // 70
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum);
+
+void LpcGetFirmwareVersion( // 71
+	[in][context_handle] void* Context, 
+	[in]long BatteryNum, 
+	[in][out]long *BufferLen, 
+	[out][ref][size_is(, *BufferLen)]wchar_t **Buffer);
+
+void LpcSetEasyResumeEnabled( // 72
+	[in][context_handle] void* Context, 
+	[in]short Value);
+
+void LpcSetEasyResumeLockTimeout( // 73
+	[in][context_handle] void* Context, 
+	[in]long Value);
+
+void LpcGetEasyResumeEnabled( // 74
+	[in][context_handle] void* Context, 
+	[out]short *Value);
+
+void LpcGetEasyResumeLockTimeout( // 75
+	[in][context_handle] void* Context, 
+	[out]long *Value);
+
+void LpcGetResetStartTime( // 76
+	[in][context_handle] void* Context, 
+	[in][string] wchar_t* Barcode, 
+	[out]long *StartHigh, 
+	[out]long *StartLow);
+
+void LpcGetFCCValue( // 77
+	[in][context_handle] void* Context, 
+	[in][string] wchar_t* Barcode, 
+	[out]long *FCCBeforeReset, 
+	[out]long *FCCAfterReset, 
+	[out]long *DesignCapacity);
+
+void LpcGetTemporaryChargeMode( // 78
+	[in][context_handle] void* Context,
+	[in]long BatteryNum,
+	[out]short* Value);
+
+void LpcGetDlsPiCapability( // 79
+	[in][context_handle] void* Context,
+	[in]long BatteryNum,
+	[out]short* Value);
+}

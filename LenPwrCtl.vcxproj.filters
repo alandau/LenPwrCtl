@@ -13,10 +13,28 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\midl-x86">
+      <UniqueIdentifier>{2d6b8fd2-8eab-4054-bfdd-39ae61348405}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\midl-x64">
+      <UniqueIdentifier>{19c2f232-bb54-46a9-84ea-6f51a27a198b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\midl-x86">
+      <UniqueIdentifier>{c56497d5-f034-4577-85fb-5f41f7c56a9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\midl-x64">
+      <UniqueIdentifier>{88d7a636-8eb2-4231-834b-8ae2fbe71a8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="midl-x86\pwrmgr_h.h">
+      <Filter>Header Files\midl-x86</Filter>
+    </ClInclude>
+    <ClInclude Include="midl-x64\pwrmgr_h.h">
+      <Filter>Header Files\midl-x64</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -28,5 +46,16 @@
     <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="midl-x86\pwrmgr_c.c">
+      <Filter>Source Files\midl-x86</Filter>
+    </ClCompile>
+    <ClCompile Include="midl-x64\pwrmgr_c.c">
+      <Filter>Source Files\midl-x64</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="pwrmgr.idl">
+      <Filter>Source Files</Filter>
+    </Midl>
   </ItemGroup>
 </Project>
