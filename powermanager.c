@@ -190,8 +190,11 @@ void UpdatePowerInfo(PowerInfo* p)
     }
     RpcExcept(EXCEPTION_EXECUTE_HANDLER)
     {
-        p->errorStr = malloc(100);
-        _snwprintf(p->errorStr, 100, L"Exception: %ld - 0x%lx\r\n", RpcExceptionCode(), RpcExceptionCode());
+        p->errorStr = malloc(500);
+        _snwprintf(p->errorStr, 500,
+            L"Exception: %ld - 0x%lx. Couldn't connect to power manager service.\n"
+            L"Is 'Lenovo Power and Battery' (old name : 'Lenovo Power Manager') "
+            L"installed in Device Manager->System devices?", RpcExceptionCode(), RpcExceptionCode());
     }
     RpcEndExcept
 }
