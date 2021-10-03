@@ -71,7 +71,8 @@ static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
 	ListView_SetColumnWidth(hListView, 1, LVSCW_AUTOSIZE_USEHEADER);
 }
 
-static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
+static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t* title, const wchar_t* valueFormat,
+	size_t offsetCapable, size_t offsetValue)
 {
 	LVITEM item;
 	wchar_t buf[50];
@@ -79,17 +80,73 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	item.mask = LVIF_TEXT;
 	item.iItem = INT_MAX;
 	item.iSubItem = 0;
-	item.pszText = L"Design Capacity";
+	item.pszText = (wchar_t*)title;
 	item.iItem = ListView_InsertItem(hListView, &item);
 	if (item.iItem >= 0) {
 		for (size_t i = 0; i < p->numBatteries; i++) {
+			BatteryInfo* b = &p->battaries[i];
+			bool capable = offsetCapable == SIZE_MAX ? true : *(bool*)((uint8_t*)b + offsetCapable);
+			int32_t* value = (int32_t*)((uint8_t*)b + offsetValue);
 			item.iSubItem = (int)i + 1;
-			item.pszText = p->battaries[i].DesignCapacity_mWhCapable ?
-				(wsprintf(buf, L"%d mWh", p->battaries[i].DesignCapacity_mWh), buf) :
-				L"N/A";
+			if (capable) {
+				wsprintf(buf, valueFormat, *value);
+				item.pszText = buf;
+			} else {
+				item.pszText = L"N/A";
+			}
 			ListView_SetItem(hListView, &item);
 		}
 	}
+	return item.iItem;
+}
+
+static int AddBatteryListViewBoolItem(HWND hListView, PowerInfo* p, const wchar_t* title,
+	size_t offsetCapable, size_t offsetValue)
+{
+	LVITEM item;
+
+	item.mask = LVIF_TEXT;
+	item.iItem = INT_MAX;
+	item.iSubItem = 0;
+	item.pszText = (wchar_t*)title;
+	item.iItem = ListView_InsertItem(hListView, &item);
+	if (item.iItem >= 0) {
+		for (size_t i = 0; i < p->numBatteries; i++) {
+			BatteryInfo* b = &p->battaries[i];
+			bool capable = offsetCapable == SIZE_MAX ? true : *(bool*)((uint8_t*)b + offsetCapable);
+			bool* value = (bool*)((uint8_t*)b + offsetValue);
+			item.iSubItem = (int)i + 1;
+			if (capable) {
+				item.pszText = *value ? L"Yes" : L"No";
+			}
+			else {
+				item.pszText = L"N/A";
+			}
+			ListView_SetItem(hListView, &item);
+		}
+	}
+	return item.iItem;
+}
+
+static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
+{
+#define INT_FIELD(title, format, field) AddBatteryListViewIntItem(hListView, p, title, format, \
+			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
+#define BOOL_FIELD(title, field) AddBatteryListViewBoolItem(hListView, p, title, \
+			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
+
+	INT_FIELD(L"Design Capacity", L"%d mWh", DesignCapacity_mWh);
+	INT_FIELD(L"Full Charge Capacity", L"%d mWh", FullChargeCapacity_mWh);
+	INT_FIELD(L"Remaining Capacity", L"%d mWh", RemainingCapacity_mWh);
+
+	AddBatteryListViewBoolItem(hListView, p, L"On AC Power", SIZE_MAX, offsetof(BatteryInfo, IsOnAcAdapter));
+	INT_FIELD(L"AC Adapter Wattage", L"%d W", AcAdapterWattage_W);
+
+	INT_FIELD(L"Voltage", L"%d mV", Voltage_mV);
+	INT_FIELD(L"Current", L"%d mA", Current_mA);
+#undef INT_FIELD
+#undef BOOL_FIELD
+
 	ListView_SetColumnWidth(hListView, 0, LVSCW_AUTOSIZE_USEHEADER);
 	for (size_t i = 0; i < p->numBatteries; i++) {
 		ListView_SetColumnWidth(hListView, i + 1, LVSCW_AUTOSIZE_USEHEADER);

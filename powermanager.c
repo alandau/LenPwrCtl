@@ -98,12 +98,17 @@ void UpdatePowerInfo(PowerInfo* p)
             p->AlwaysOnUsb = value;
         }
 
-#define GET_FIELD(name, func) do { \
+#define INT_FIELD(name, func) do { \
     func(ctx, batt, &value, &capable); \
     b->name##Capable = capable; \
     b->name = value; \
     } while (0)
 
+#define BOOL_FIELD(name, func) do { \
+    func(ctx, batt, &enabled, &capable); \
+    b->name##Capable = capable; \
+    b->name = enabled; \
+    } while (0)
 
         p->numBatteries = 0;
         for (int batt = 1; batt <= MAX_BATTARIES; batt++) {
@@ -118,10 +123,14 @@ void UpdatePowerInfo(PowerInfo* p)
             b->Current_mACapable = true;
             b->Current_mA = value;
 
-            GET_FIELD(Voltage_mV, LpcGetVoltage);
-            GET_FIELD(DesignCapacity_mWh, LpcGetDesignCapacity);
-            GET_FIELD(FullChargeCapacity_mWh, LpcGetFullChargeCapacity);
-            GET_FIELD(RemainingCapacity_mWh, LpcGetRemainingCapacity);
+            INT_FIELD(Voltage_mV, LpcGetVoltage);
+            INT_FIELD(DesignCapacity_mWh, LpcGetDesignCapacity);
+            INT_FIELD(FullChargeCapacity_mWh, LpcGetFullChargeCapacity);
+            INT_FIELD(RemainingCapacity_mWh, LpcGetRemainingCapacity);
+            LpcGetIsAcAttached(ctx, batt, &enabled);
+            b->IsOnAcAdapterCapable = true;
+            b->IsOnAcAdapter = enabled;
+            INT_FIELD(AcAdapterWattage_W, LpcGetAcAdapterWattage);
 
             LpcGetChargeThreshold(ctx, batt, &capable, &enabled, &start, &stop);
             b->ChargeThresholdCapable = capable;
@@ -131,7 +140,8 @@ void UpdatePowerInfo(PowerInfo* p)
 
             p->numBatteries++;
         }
-#undef GET_FIELD
+#undef INT_FIELD
+#undef BOOL_FIELD
 
 #if 0
         LpcGetAirplanePowerMode(ctx, &result);
