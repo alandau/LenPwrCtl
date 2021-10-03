@@ -5,7 +5,7 @@ INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
 	case WM_INITDIALOG:
-		return FALSE;
+		return TRUE;
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
 		return TRUE;
