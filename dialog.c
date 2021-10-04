@@ -1,11 +1,11 @@
 #include "dialog.h"
 
-INT_PTR DialogBoxWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc)
+INT_PTR DialogBoxParamWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc, LPARAM lParam)
 {
 	LOGFONT lf;
 	BOOL res = SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &lf, 0);
 	if (!res) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 	int fontSizePt = lf.lfHeight >= 0 ?
 		lf.lfHeight :
@@ -13,27 +13,27 @@ INT_PTR DialogBoxWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, H
 
 	HRSRC hRsrc = FindResource(hInstance, hDialogTemplate, RT_DIALOG);
 	if (!hRsrc) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 
 	DWORD size = SizeofResource(hInstance, hRsrc);
 	if (!size) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 
 	HGLOBAL hGlobal = LoadResource(hInstance, hRsrc);
 	if (!hGlobal) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 
 	BYTE* data = LockResource(hGlobal);
 	if (!data) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 
 	// We only support DIALOGEX templates
 	if (!(size >= 4 && data[0] == 1 && data[1] == 0 && data[2] == 0xff && data[3] == 0xff)) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 
 	// Skip initial static fields
@@ -55,7 +55,7 @@ INT_PTR DialogBoxWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, H
 
 	BYTE* newTemplate = malloc(size - existingFontNameBytes + newFontNameBytes);
 	if (!newTemplate) {
-		return DialogBox(hInstance, hDialogTemplate, hWndParent, lpDialogFunc);
+		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
 
 	// Copy initial bytes
@@ -73,7 +73,12 @@ INT_PTR DialogBoxWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, H
 	// Copy remaining template bytes
 	memcpy(newTemplate + offset + 6 + newFontNameBytes, data + offset + 6 + existingFontNameBytes, size - (offset + 6 + existingFontNameBytes));
 
-	INT_PTR result = DialogBoxIndirect(hInstance, (DLGTEMPLATE*)newTemplate, hWndParent, lpDialogFunc);
+	INT_PTR result = DialogBoxIndirectParam(hInstance, (DLGTEMPLATE*)newTemplate, hWndParent, lpDialogFunc, lParam);
 	free(newTemplate);
 	return result;
+}
+
+INT_PTR DialogBoxWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, HWND hWndParent, DLGPROC lpDialogFunc)
+{
+	return DialogBoxParamWithDefaultFont(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, 0);
 }

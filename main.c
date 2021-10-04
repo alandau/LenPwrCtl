@@ -4,6 +4,7 @@
 #include "powermanager.h"
 #include "dialog.h"
 #include "version.h"
+#include "thresholdsdialog.h"
 
 #define PROGRAM_NAME L"LenPwrCtl"
 
@@ -12,6 +13,7 @@ typedef struct InstanceData
 	PowerInfo* powerInfo;
 	HWND generalListView;
 	HWND batteryListView;
+	HWND thresholdsButton;
 } InstanceData;
 
 static void InitGeneralListView(HWND hListView)
@@ -277,6 +279,30 @@ static void UpdateTitle(HWND hWnd)
 	SetWindowText(hWnd, title);
 }
 
+static void UpdateThresholdsButtonEnabled(HWND hButton, PowerInfo* p)
+{
+	BOOL enableThresholdsButton = FALSE;
+	for (size_t i = 0; i < p->numBatteries; i++) {
+		if (p->battaries[i].ChargeThresholdCapable) {
+			enableThresholdsButton = TRUE;
+		}
+	}
+	EnableWindow(hButton, enableThresholdsButton);
+}
+
+static void RefreshView(HWND hDlg, InstanceData* p)
+{
+	UpdatePowerInfo(p->powerInfo);
+	if (p->powerInfo->errorStr) {
+		MessageBox(hDlg, p->powerInfo->errorStr, PROGRAM_NAME, MB_OK | MB_ICONERROR);
+		EndDialog(hDlg, 0);
+		return TRUE;
+	}
+	UpdateGeneralListView(p->generalListView, p->powerInfo);
+	UpdateBatteryListView(p->batteryListView, p->powerInfo);
+	UpdateThresholdsButtonEnabled(p->thresholdsButton, p->powerInfo);
+}
+
 static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	InstanceData* p;
@@ -291,6 +317,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 	case WM_INITDIALOG:
 		p->generalListView = GetDlgItem(hDlg, IDC_GENERAL_LIST);
 		p->batteryListView = GetDlgItem(hDlg, IDC_BATTERY_LIST);
+		p->thresholdsButton= GetDlgItem(hDlg, IDC_THRESHOLDS_BUTTON);
 		p->powerInfo = GetPowerInfo();
 		if (!p->powerInfo) {
 			MessageBox(hDlg, L"Couldn't allocate memory, exiting.", PROGRAM_NAME, MB_OK | MB_ICONERROR);
@@ -307,6 +334,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 		InitBatteryListView(p->batteryListView, p->powerInfo->numBatteries);
 		UpdateGeneralListView(p->generalListView, p->powerInfo);
 		UpdateBatteryListView(p->batteryListView, p->powerInfo);
+		UpdateThresholdsButtonEnabled(p->thresholdsButton, p->powerInfo);
 		return TRUE;
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
@@ -329,14 +357,12 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_REFRESH_BUTTON:
-			UpdatePowerInfo(p->powerInfo);
-			if (p->powerInfo->errorStr) {
-				MessageBox(hDlg, p->powerInfo->errorStr, PROGRAM_NAME, MB_OK | MB_ICONERROR);
-				EndDialog(hDlg, 0);
-				return TRUE;
+			RefreshView(hDlg, p);
+			break;
+		case IDC_THRESHOLDS_BUTTON:
+			if (DialogBoxParamWithDefaultFont(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_THRESHOLDS_DIALOG), hDlg, ThresholdsDlgProc, 0)) {
+				RefreshView(hDlg, p);
 			}
-			UpdateGeneralListView(p->generalListView, p->powerInfo);
-			UpdateBatteryListView(p->batteryListView, p->powerInfo);
 			break;
 		}
 		return TRUE;
