@@ -168,6 +168,36 @@ static int AddBatteryListViewStrItem(HWND hListView, PowerInfo* p, const wchar_t
 	return item.iItem;
 }
 
+static int AddBatteryListViewChargeThresholds(HWND hListView, PowerInfo* p)
+{
+	LVITEM item;
+
+	item.mask = LVIF_TEXT;
+	item.iItem = INT_MAX;
+	item.iSubItem = 0;
+	item.pszText = L"Charge Thresholds";
+	item.iItem = ListView_InsertItem(hListView, &item);
+	if (item.iItem >= 0) {
+		for (size_t i = 0; i < p->numBatteries; i++) {
+			BatteryInfo* b = &p->battaries[i];
+			item.iSubItem = (int)i + 1;
+			if (b->ChargeThresholdCapable) {
+				if (b->ChargeThresholdEnabled) {
+					wchar_t buf[50];
+					wsprintf(buf, L"Start at %d%%, stop at %d%%", b->ChargeThresholdStart_pct, b->ChargeThresholdStop_pct);
+					item.pszText = buf;
+				} else {
+					item.pszText = L"Disabled";
+				}
+			} else {
+				item.pszText = L"N/A";
+			}
+			ListView_SetItem(hListView, &item);
+		}
+	}
+	return item.iItem;
+}
+
 static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 {
 	ListView_DeleteAllItems(hListView);
@@ -192,6 +222,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 
 	INT_FIELD(L"Serial Number", L"%d", SerialNumber, IntItemNormal);
 	INT_FIELD(L"Temperature", L"%d C", Temperature_C, IntItemNormal);
+	INT_FIELD(L"Cycle Count", L"%d", CycleCount, IntItemNormal);
 	INT_FIELD(L"Remaining Percentage", L"%d%%", RemainingPercentage_pct, IntItemNormal);
 	INT_FIELD(L"Remaining Time", L"%d h %d min", RemainingTime_min, IntItemHourMins);
 	INT_FIELD(L"Charge Completion Time", L"%d h %d min", ChargeCompletionTime_min, IntItemHourMins);
@@ -206,6 +237,8 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	STR_FIELD(L"Manufacture Date", ManufactureDate);
 	STR_FIELD(L"Firmware Version", FirmwareVersion);
 	STR_FIELD(L"Last Condition Date", LastConditionDate);
+
+	AddBatteryListViewChargeThresholds(hListView, p);
 
 #undef INT_FIELD
 #undef BOOL_FIELD

@@ -69,13 +69,13 @@ static void FreeBatteryStrings(PowerInfo* p)
 {
     for (size_t i = 0; i < p->numBatteries; i++) {
         BatteryInfo* b = &p->battaries[i];
-        free(b->DeviceName);
-        free(b->BarcodeNumber);
-        free(b->FirstUseDate);
-        free(b->Manufacturer);
-        free(b->ManufactureDate);
-        free(b->FirmwareVersion);
-        free(b->LastConditionDate);
+        free(b->DeviceName); b->DeviceName = NULL;
+        free(b->BarcodeNumber); b->BarcodeNumber = NULL;
+        free(b->FirstUseDate); b->FirstUseDate = NULL;
+        free(b->Manufacturer); b->Manufacturer = NULL;
+        free(b->ManufactureDate); b->ManufactureDate = NULL;
+        free(b->FirmwareVersion); b->FirmwareVersion = NULL;
+        free(b->LastConditionDate); b->LastConditionDate = NULL;
     }
 }
 
