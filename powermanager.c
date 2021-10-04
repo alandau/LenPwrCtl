@@ -65,12 +65,27 @@ PowerInfo* GetPowerInfo(void)
     return p;
 }
 
+static void FreeBatteryStrings(PowerInfo* p)
+{
+    for (size_t i = 0; i < p->numBatteries; i++) {
+        BatteryInfo* b = &p->battaries[i];
+        free(b->DeviceName);
+        free(b->BarcodeNumber);
+        free(b->FirstUseDate);
+        free(b->Manufacturer);
+        free(b->ManufactureDate);
+        free(b->FirmwareVersion);
+        free(b->LastConditionDate);
+    }
+}
+
 void FreePowerInfo(PowerInfo* p)
 {
     if (p == NULL) {
         return;
     }
     RpcBindingFree(&p->binding);
+    FreeBatteryStrings(p);
     free(p->errorStr);
 	free(p);
 }
@@ -89,7 +104,7 @@ void UpdatePowerInfo(PowerInfo* p)
         }
 
         short capable, enabled;
-        long value, start, stop;
+        long value, start, stop, len;
 
         LpcIsAlwaysOnUsbCapable(ctx, &capable);
         p->AlwaysOnUsbCapable = capable;
@@ -110,10 +125,19 @@ void UpdatePowerInfo(PowerInfo* p)
     b->name = enabled; \
     } while (0)
 
+#define STR_FIELD(name, func) do { \
+    func(ctx, batt, &len, &b->name, &capable); \
+    if (!capable) { \
+        free(b->name); \
+        b->name = NULL; \
+    } \
+    } while (0)
+
+        FreeBatteryStrings(p);
         p->numBatteries = 0;
         for (int batt = 1; batt <= MAX_BATTARIES; batt++) {
             BatteryInfo* b = &p->battaries[p->numBatteries];
-            LpcUpdateSmartBatteryStatus(ctx, batt);
+                LpcUpdateSmartBatteryStatus(ctx, batt);
 
             LpcGetCurrent(ctx, batt, &value, &capable);
             if (!capable) {
@@ -124,6 +148,15 @@ void UpdatePowerInfo(PowerInfo* p)
             b->Current_mA = value;
 
             INT_FIELD(Voltage_mV, LpcGetVoltage);
+
+            if (b->Current_mACapable && b->Voltage_mVCapable) {
+                b->Wattage_mWCapable = true;
+                b->Wattage_mW = b->Current_mA * b->Voltage_mV / 1000;
+            } else {
+                b->Wattage_mWCapable = false;
+            }
+
+            INT_FIELD(DesignVoltage_mV, LpcGetDesignVoltage);
             INT_FIELD(DesignCapacity_mWh, LpcGetDesignCapacity);
             INT_FIELD(FullChargeCapacity_mWh, LpcGetFullChargeCapacity);
             INT_FIELD(RemainingCapacity_mWh, LpcGetRemainingCapacity);
@@ -138,65 +171,31 @@ void UpdatePowerInfo(PowerInfo* p)
             b->ChargeThresholdStart_pct = start;
             b->ChargeThresholdStop_pct = stop;
 
+            INT_FIELD(SerialNumber, LpcGetSerialNumber);
+            INT_FIELD(Temperature_C, LpcGetTemperature);
+            INT_FIELD(CycleCount, LpcGetCycleCount);
+
+            INT_FIELD(RemainingPercentage_pct, LpcGetRemainingPercentage);
+            INT_FIELD(RemainingTime_min, LpcGetRemainingTime);
+            INT_FIELD(ChargeCompletionTime_min, LpcGetChargeCompletionTime);
+            INT_FIELD(ChargeStatus, LpcGetChargeStatus);
+            INT_FIELD(Chemistry, LpcGetDeviceChemistry);
+            INT_FIELD(HealthStatus, LpcGetHealthStatus);
+
+            STR_FIELD(DeviceName, LpcGetDeviceName);
+            STR_FIELD(BarcodeNumber, LpcGetBarCodeNumber);
+            STR_FIELD(FirstUseDate, LpcGetFirstUsedDate);
+            LpcGetManufacturerName(ctx, batt, &len, &b->Manufacturer);
+            LpcGetManufactureDate(ctx, batt, &len, &b->ManufactureDate);
+            LpcGetFirmwareVersion(ctx, batt, &len, &b->FirmwareVersion);
+            LpcGetLastConditionDate(ctx, batt, &len, &b->LastConditionDate);
+
             p->numBatteries++;
         }
 #undef INT_FIELD
 #undef BOOL_FIELD
+#undef STR_FIELD
 
-#if 0
-        LpcGetAirplanePowerMode(ctx, &result);
-        LpcUpdateSmartBatteryStatus(ctx, 1);
-        LpcGetCurrent(ctx, 1, &val, &result);
-        wprintf(L"Current=%ld, result=%d\n", val, result);
-        LpcGetVoltage(ctx, 1, &val, &result);
-        wprintf(L"Voltage=%ld, result=%d\n", val, result);
-        LpcGetAcAdapterWattage(ctx, 1, &val, &result);
-        wprintf(L"AC adapter %ld W, result=%d\n", val, result);
-        LpcGetFullChargeCapacity(ctx, 1, &val, &result);
-        wprintf(L"Full charge capacity=%ld mWh, result=%d\n", val, result);
-        LpcGetDesignCapacity(ctx, 1, &val, &result);
-        wprintf(L"Design capacity=%ld mWh, result=%d\n", val, result);
-        LpcGetRemainingCapacity(ctx, 1, &val, &result);
-        wprintf(L"Remaining capacity=%ld mWh, result=%d\n", val, result);
-        LpcGetCycleCount(ctx, 1, &val, &result);
-        wprintf(L"Cycle count=%ld, result=%d\n", val, result);
-        LpcGetChargeStatus(ctx, 1, &val, &result);
-        wprintf(L"Charge status %ld, result=%d\n", val, result);
-        LpcGetDeviceChemistry(ctx, 1, &val, &result);
-        wprintf(L"Chemistry %ld, result=%d\n", val, result);
-        //LpcSetChargeThreshold(ctx, 1, 85, 90); // set thresholds
-        LpcGetChargeThreshold(ctx, 1, &result, &is_enabled, &start, &stop);
-        wprintf(L"start=%d, stop=%d, enabled=%ld, result=%ld\n", start, stop, is_enabled, result);
-        LpcGetIsAcAttached(ctx, 1, &result);
-        wprintf(L"Is on AC adapter result=%d\n", result);
-        LpcGetFirmwareVersion(ctx, 1, &len, &buf);
-        printf("Firmware version '%ls'\n", buf);
-        free(buf);
-        buf = NULL;
-        LpcGetDeviceName(ctx, 1, &len, &buf, &result);
-        printf("Device name '%ls', result=%d\n", buf, result);
-        free(buf); buf = NULL;
-        LpcGetBarCodeNumber(ctx, 1, &len, &buf, &result);
-        printf("Barcode '%ls', result=%d\n", buf, result);
-        free(buf); buf = NULL;
-        LpcGetFirstUsedDate(ctx, 1, &len, &buf, &result);
-        printf("First used date '%ls', result=%d\n", buf, result);
-        free(buf); buf = NULL;
-        LpcGetManufacturerName(ctx, 1, &len, &buf);
-        printf("Manufacturer '%ls'\n", buf);
-        free(buf); buf = NULL;
-        LpcGetManufactureDate(ctx, 1, &len, &buf);
-        printf("Manufacture date '%ls'\n", buf);
-        free(buf); buf = NULL;
-
-        long version, revision;
-        LpcGetSpecificationInfo(ctx, 1, &version, &revision, &result);
-        printf("version=%d, revision=%d, result=%d\n", version, revision, result);
-        long acsourceinfo;
-        short warrantyvalid, nonreplaceable;
-        LpcGetSBSExData(ctx, 1, &acsourceinfo, &warrantyvalid, &nonreplaceable);
-        printf("AC source info=%d, Warranty valid=%d, Non-replaceable=%d\n", acsourceinfo, warrantyvalid, nonreplaceable);
-#endif
     }
     RpcExcept(EXCEPTION_EXECUTE_HANDLER)
     {

@@ -19,8 +19,29 @@ typedef struct BatteryInfo {
 	FIELD_BOOL(IsOnAcAdapter);
 	FIELD_INT(AcAdapterWattage_W);
 
+	FIELD_INT(DesignVoltage_mV);
 	FIELD_INT(Voltage_mV);
 	FIELD_INT(Current_mA);
+	FIELD_INT(Wattage_mW);
+
+	FIELD_INT(SerialNumber);
+	FIELD_INT(Temperature_C);
+	FIELD_INT(CycleCount);
+
+	FIELD_INT(RemainingPercentage_pct);
+	FIELD_INT(RemainingTime_min);
+	FIELD_INT(ChargeCompletionTime_min);
+	FIELD_INT(ChargeStatus);
+	FIELD_INT(Chemistry);
+	FIELD_INT(HealthStatus);
+
+	wchar_t* DeviceName;
+	wchar_t* BarcodeNumber;
+	wchar_t* FirstUseDate;
+	wchar_t* Manufacturer;
+	wchar_t* ManufactureDate;
+	wchar_t* FirmwareVersion;
+	wchar_t* LastConditionDate;
 } BatteryInfo;
 
 typedef struct PowerInfo {

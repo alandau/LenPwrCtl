@@ -73,8 +73,14 @@ static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
 	ListView_SetColumnWidth(hListView, 1, LVSCW_AUTOSIZE_USEHEADER);
 }
 
+typedef enum {
+	IntItemNormal,
+	IntItemDiv1000,
+	IntItemHourMins,
+} IntItemFlags;
+
 static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t* title, const wchar_t* valueFormat,
-	size_t offsetCapable, size_t offsetValue)
+	size_t offsetCapable, size_t offsetValue, IntItemFlags flags)
 {
 	LVITEM item;
 	wchar_t buf[50];
@@ -91,7 +97,17 @@ static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t
 			int32_t* value = (int32_t*)((uint8_t*)b + offsetValue);
 			item.iSubItem = (int)i + 1;
 			if (capable) {
-				wsprintf(buf, valueFormat, *value);
+				switch (flags) {
+				case IntItemNormal:
+					wsprintf(buf, valueFormat, *value);
+					break;
+				case IntItemDiv1000:
+					wsprintf(buf, valueFormat, *value >= 0 ? "" : "-", abs(*value) / 1000, abs(*value) % 1000);
+					break;
+				case IntItemHourMins:
+					wsprintf(buf, valueFormat, *value / 60, *value % 60);
+					break;
+				}
 				item.pszText = buf;
 			} else {
 				item.pszText = L"N/A";
@@ -130,26 +146,70 @@ static int AddBatteryListViewBoolItem(HWND hListView, PowerInfo* p, const wchar_
 	return item.iItem;
 }
 
+static int AddBatteryListViewStrItem(HWND hListView, PowerInfo* p, const wchar_t* title,
+	size_t offsetValue)
+{
+	LVITEM item;
+
+	item.mask = LVIF_TEXT;
+	item.iItem = INT_MAX;
+	item.iSubItem = 0;
+	item.pszText = (wchar_t*)title;
+	item.iItem = ListView_InsertItem(hListView, &item);
+	if (item.iItem >= 0) {
+		for (size_t i = 0; i < p->numBatteries; i++) {
+			BatteryInfo* b = &p->battaries[i];
+			wchar_t* value = *(wchar_t**)((uint8_t*)b + offsetValue);
+			item.iSubItem = (int)i + 1;
+			item.pszText = value ? value : L"N/A";
+			ListView_SetItem(hListView, &item);
+		}
+	}
+	return item.iItem;
+}
+
 static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 {
 	ListView_DeleteAllItems(hListView);
 
-#define INT_FIELD(title, format, field) AddBatteryListViewIntItem(hListView, p, title, format, \
-			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
+#define INT_FIELD(title, format, field, flags) AddBatteryListViewIntItem(hListView, p, title, format, \
+			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field), flags)
 #define BOOL_FIELD(title, field) AddBatteryListViewBoolItem(hListView, p, title, \
 			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
+#define STR_FIELD(title, field) AddBatteryListViewStrItem(hListView, p, title, offsetof(BatteryInfo, field))
 
-	INT_FIELD(L"Design Capacity", L"%d mWh", DesignCapacity_mWh);
-	INT_FIELD(L"Full Charge Capacity", L"%d mWh", FullChargeCapacity_mWh);
-	INT_FIELD(L"Remaining Capacity", L"%d mWh", RemainingCapacity_mWh);
+	INT_FIELD(L"Design Capacity", L"%s%d.%03d Wh", DesignCapacity_mWh, IntItemDiv1000);
+	INT_FIELD(L"Full Charge Capacity", L"%s%d.%03d Wh", FullChargeCapacity_mWh, IntItemDiv1000);
+	INT_FIELD(L"Remaining Capacity", L"%s%d.%d Wh", RemainingCapacity_mWh, IntItemDiv1000);
 
 	AddBatteryListViewBoolItem(hListView, p, L"On AC Power", SIZE_MAX, offsetof(BatteryInfo, IsOnAcAdapter));
-	INT_FIELD(L"AC Adapter Wattage", L"%d W", AcAdapterWattage_W);
+	INT_FIELD(L"AC Adapter Wattage", L"%d W", AcAdapterWattage_W, IntItemNormal);
 
-	INT_FIELD(L"Voltage", L"%d mV", Voltage_mV);
-	INT_FIELD(L"Current", L"%d mA", Current_mA);
+	INT_FIELD(L"Design Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
+	INT_FIELD(L"Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
+	INT_FIELD(L"Current", L"%s%d.%03d A", Current_mA, IntItemDiv1000);
+	INT_FIELD(L"Wattage", L"%s%d.%03d W", Wattage_mW, IntItemDiv1000);
+
+	INT_FIELD(L"Serial Number", L"%d", SerialNumber, IntItemNormal);
+	INT_FIELD(L"Temperature", L"%d C", Temperature_C, IntItemNormal);
+	INT_FIELD(L"Remaining Percentage", L"%d%%", RemainingPercentage_pct, IntItemNormal);
+	INT_FIELD(L"Remaining Time", L"%d h %d min", RemainingTime_min, IntItemHourMins);
+	INT_FIELD(L"Charge Completion Time", L"%d h %d min", ChargeCompletionTime_min, IntItemHourMins);
+	INT_FIELD(L"Charge Status", L"%d", ChargeStatus, IntItemNormal);
+	INT_FIELD(L"Chemistry", L"%d", Chemistry, IntItemNormal);
+	INT_FIELD(L"HealthStatus", L"%d", HealthStatus, IntItemNormal);
+
+	STR_FIELD(L"Device Name", DeviceName);
+	STR_FIELD(L"Barcode Number", BarcodeNumber);
+	STR_FIELD(L"First Use Date", FirstUseDate);
+	STR_FIELD(L"Manufacturer", Manufacturer);
+	STR_FIELD(L"Manufacture Date", ManufactureDate);
+	STR_FIELD(L"Firmware Version", FirmwareVersion);
+	STR_FIELD(L"Last Condition Date", LastConditionDate);
+
 #undef INT_FIELD
 #undef BOOL_FIELD
+#undef STR_FIELD
 
 	ListView_SetColumnWidth(hListView, 0, LVSCW_AUTOSIZE_USEHEADER);
 	for (size_t i = 0; i < p->numBatteries; i++) {
