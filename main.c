@@ -243,7 +243,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	AddBatteryListViewEmptyItem(hListView, L"Health Status");
 	INT_FIELD(L"    Design Capacity", L"%s%d.%03d Wh", DesignCapacity_mWh, IntItemDiv1000);
 	INT_FIELD(L"    Full Charge Capacity", L"%s%d.%03d Wh", FullChargeCapacity_mWh, IntItemDiv1000);
-	INT_FIELD(L"    Design Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
+	INT_FIELD(L"    Design Voltage", L"%s%d.%03d V", DesignVoltage_mV, IntItemDiv1000);
 	INT_FIELD(L"    Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
 	INT_FIELD(L"    Cycle Count", L"%d", CycleCount, IntItemNormal);
 	INT_FIELD(L"    Health Status", L"%d", HealthStatus, IntItemNormal);
