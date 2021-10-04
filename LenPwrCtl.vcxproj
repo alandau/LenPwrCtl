@@ -204,6 +204,7 @@
     <ClInclude Include="midl-x86\pwrmgr_h.h" />
     <ClInclude Include="powermanager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LenPwrCtl.rc" />

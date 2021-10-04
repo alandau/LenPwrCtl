@@ -8,7 +8,7 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "winres.h"
-
+#include "version.h"
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
@@ -33,7 +33,7 @@ END
 2 TEXTINCLUDE 
 BEGIN
     "#include ""winres.h""\r\n"
-    "\0"
+    "#include ""version.h""\0"
 END
 
 3 TEXTINCLUDE 
@@ -85,23 +85,12 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_MAIN_DIALOG AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,0
- PRODUCTVERSION 0,0,0,0
+ FILEVERSION VER_MAJOR,VER_MINOR,VER_REVISION,0
+ PRODUCTVERSION VER_MAJOR,VER_MINOR,VER_REVISION,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -120,7 +109,8 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "LenPwrCtl.exe"
             VALUE "ProductName", "LenPwrCtl"
-            VALUE "ProductVersion", "v0.0"
+            VALUE "ProductVersion", "v" VER_STRING
+            VALUE "FileVersion", "v" VER_STRING
         END
     END
     BLOCK "VarFileInfo"

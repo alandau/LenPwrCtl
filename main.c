@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "powermanager.h"
 #include "dialog.h"
+#include "version.h"
 
 #define PROGRAM_NAME L"LenPwrCtl"
 
@@ -268,34 +269,12 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 
 static void UpdateTitle(HWND hWnd)
 {
-	wchar_t filename[MAX_PATH];
-	if (!GetModuleFileName(NULL, filename, MAX_PATH)) {
-		return;
-	}
-	DWORD dummy;
-	DWORD size = GetFileVersionInfoSize(filename, &dummy);
-	if (!size) {
-		return;
-	}
-	void* data = malloc(size);
-	if (!data) {
-		return;
-	}
-	if (!GetFileVersionInfo(filename, 0, size, data)) {
-		free(data);
-		return;
-	}
-	wchar_t* versionBuf;
-	DWORD versoinLen;
-	if (!VerQueryValue(data, L"\\StringFileInfo\\040904b0\\ProductVersion", &versionBuf, &versoinLen)) {
-		free(data);
-		return;
-	}
-	GetWindowText(hWnd, filename, MAX_PATH);
-	wcscat_s(filename, MAX_PATH, L" ");
-	wcscat_s(filename, MAX_PATH, versionBuf);
-	SetWindowText(hWnd, filename);
-	free(data);
+	enum { MAX_LEN = 100 };
+	wchar_t title[MAX_LEN];
+	GetWindowText(hWnd, title, MAX_LEN);
+	wcscat_s(title, MAX_LEN, L" v");
+	wcscat_s(title, MAX_LEN, VER_STRING);
+	SetWindowText(hWnd, title);
 }
 
 static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
