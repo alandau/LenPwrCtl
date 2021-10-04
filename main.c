@@ -80,6 +80,7 @@ typedef enum {
 	IntItemNormal,
 	IntItemDiv1000,
 	IntItemHourMins,
+	IntItemChargeStatus,
 } IntItemFlags;
 
 static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t* title, const wchar_t* valueFormat,
@@ -97,18 +98,21 @@ static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t
 		for (size_t i = 0; i < p->numBatteries; i++) {
 			BatteryInfo* b = &p->battaries[i];
 			bool capable = offsetCapable == SIZE_MAX ? true : *(bool*)((uint8_t*)b + offsetCapable);
-			int32_t* value = (int32_t*)((uint8_t*)b + offsetValue);
 			item.iSubItem = (int)i + 1;
 			if (capable) {
+				int32_t value = *(int32_t*)((uint8_t*)b + offsetValue);
 				switch (flags) {
 				case IntItemNormal:
-					wsprintf(buf, valueFormat, *value);
+					wsprintf(buf, valueFormat, value);
 					break;
 				case IntItemDiv1000:
-					wsprintf(buf, valueFormat, *value >= 0 ? "" : "-", abs(*value) / 1000, abs(*value) % 1000);
+					wsprintf(buf, valueFormat, value >= 0 ? "" : "-", abs(value) / 1000, abs(value) % 1000);
 					break;
 				case IntItemHourMins:
-					wsprintf(buf, valueFormat, *value / 60, *value % 60);
+					wsprintf(buf, valueFormat, value / 60, value % 60);
+					break;
+				case IntItemChargeStatus:
+					wsprintf(buf, valueFormat, value == 0 ? L"Idle" : value == 1 ? L"Charging" : value == 2 ? L"Discharging" : L"Unknown", value);
 					break;
 				}
 				item.pszText = buf;
@@ -229,7 +233,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	INT_FIELD(L"    Remaining Capacity", L"%s%d.%d Wh", RemainingCapacity_mWh, IntItemDiv1000);
 	AddBatteryListViewBoolItem(hListView, p, L"    On AC Power", SIZE_MAX, offsetof(BatteryInfo, IsOnAcAdapter));
 	INT_FIELD(L"    AC Adapter Wattage", L"%d W", AcAdapterWattage_W, IntItemNormal);
-	INT_FIELD(L"    Charge Status", L"%d", ChargeStatus, IntItemNormal);
+	INT_FIELD(L"    Charge Status", L"%s (%d)", ChargeStatus, IntItemChargeStatus);
 	INT_FIELD(L"    Remaining Time", L"%d h %d min", RemainingTime_min, IntItemHourMins);
 	INT_FIELD(L"    Remaining Percentage", L"%d%%", RemainingPercentage_pct, IntItemNormal);
 	INT_FIELD(L"    Charge Completion Time", L"%d h %d min", ChargeCompletionTime_min, IntItemHourMins);
@@ -242,7 +246,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	INT_FIELD(L"    Design Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
 	INT_FIELD(L"    Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
 	INT_FIELD(L"    Cycle Count", L"%d", CycleCount, IntItemNormal);
-	INT_FIELD(L"    HealthStatus", L"%d", HealthStatus, IntItemNormal);
+	INT_FIELD(L"    Health Status", L"%d", HealthStatus, IntItemNormal);
 	STR_FIELD(L"    Last Condition Date", LastConditionDate);
 
 	AddBatteryListViewEmptyItem(hListView, L"");
