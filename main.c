@@ -198,6 +198,18 @@ static int AddBatteryListViewChargeThresholds(HWND hListView, PowerInfo* p)
 	return item.iItem;
 }
 
+static int AddBatteryListViewEmptyItem(HWND hListView, const wchar_t* title)
+{
+	LVITEM item;
+
+	item.mask = LVIF_TEXT;
+	item.iItem = INT_MAX;
+	item.iSubItem = 0;
+	item.pszText = (wchar_t*)title;
+	item.iItem = ListView_InsertItem(hListView, &item);
+	return item.iItem;
+}
+
 static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 {
 	ListView_DeleteAllItems(hListView);
@@ -208,36 +220,40 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
 #define STR_FIELD(title, field) AddBatteryListViewStrItem(hListView, p, title, offsetof(BatteryInfo, field))
 
-	INT_FIELD(L"Design Capacity", L"%s%d.%03d Wh", DesignCapacity_mWh, IntItemDiv1000);
-	INT_FIELD(L"Full Charge Capacity", L"%s%d.%03d Wh", FullChargeCapacity_mWh, IntItemDiv1000);
-	INT_FIELD(L"Remaining Capacity", L"%s%d.%d Wh", RemainingCapacity_mWh, IntItemDiv1000);
+	AddBatteryListViewEmptyItem(hListView, L"Charging Information");
+	INT_FIELD(L"    Current", L"%s%d.%03d A", Current_mA, IntItemDiv1000);
+	INT_FIELD(L"    Wattage", L"%s%d.%03d W", Wattage_mW, IntItemDiv1000);
+	INT_FIELD(L"    Remaining Capacity", L"%s%d.%d Wh", RemainingCapacity_mWh, IntItemDiv1000);
+	AddBatteryListViewBoolItem(hListView, p, L"    On AC Power", SIZE_MAX, offsetof(BatteryInfo, IsOnAcAdapter));
+	INT_FIELD(L"    AC Adapter Wattage", L"%d W", AcAdapterWattage_W, IntItemNormal);
+	INT_FIELD(L"    Charge Status", L"%d", ChargeStatus, IntItemNormal);
+	INT_FIELD(L"    Remaining Time", L"%d h %d min", RemainingTime_min, IntItemHourMins);
+	INT_FIELD(L"    Remaining Percentage", L"%d%%", RemainingPercentage_pct, IntItemNormal);
+	INT_FIELD(L"    Charge Completion Time", L"%d h %d min", ChargeCompletionTime_min, IntItemHourMins);
+	INT_FIELD(L"    Temperature", L"%d C", Temperature_C, IntItemNormal);
 
-	AddBatteryListViewBoolItem(hListView, p, L"On AC Power", SIZE_MAX, offsetof(BatteryInfo, IsOnAcAdapter));
-	INT_FIELD(L"AC Adapter Wattage", L"%d W", AcAdapterWattage_W, IntItemNormal);
+	AddBatteryListViewEmptyItem(hListView, L"");
+	AddBatteryListViewEmptyItem(hListView, L"Health Status");
+	INT_FIELD(L"    Design Capacity", L"%s%d.%03d Wh", DesignCapacity_mWh, IntItemDiv1000);
+	INT_FIELD(L"    Full Charge Capacity", L"%s%d.%03d Wh", FullChargeCapacity_mWh, IntItemDiv1000);
+	INT_FIELD(L"    Design Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
+	INT_FIELD(L"    Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
+	INT_FIELD(L"    Cycle Count", L"%d", CycleCount, IntItemNormal);
+	INT_FIELD(L"    HealthStatus", L"%d", HealthStatus, IntItemNormal);
+	STR_FIELD(L"    Last Condition Date", LastConditionDate);
 
-	INT_FIELD(L"Design Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
-	INT_FIELD(L"Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
-	INT_FIELD(L"Current", L"%s%d.%03d A", Current_mA, IntItemDiv1000);
-	INT_FIELD(L"Wattage", L"%s%d.%03d W", Wattage_mW, IntItemDiv1000);
+	AddBatteryListViewEmptyItem(hListView, L"");
+	AddBatteryListViewEmptyItem(hListView, L"Manufacture Information");
+	STR_FIELD(L"    Device Name", DeviceName);
+	STR_FIELD(L"    Barcode Number", BarcodeNumber);
+	STR_FIELD(L"    Manufacturer", Manufacturer);
+	STR_FIELD(L"    Manufacture Date", ManufactureDate);
+	INT_FIELD(L"    Serial Number", L"%d", SerialNumber, IntItemNormal);
+	INT_FIELD(L"    Chemistry", L"%d", Chemistry, IntItemNormal);
+	STR_FIELD(L"    First Use Date", FirstUseDate);
+	STR_FIELD(L"    Firmware Version", FirmwareVersion);
 
-	INT_FIELD(L"Serial Number", L"%d", SerialNumber, IntItemNormal);
-	INT_FIELD(L"Temperature", L"%d C", Temperature_C, IntItemNormal);
-	INT_FIELD(L"Cycle Count", L"%d", CycleCount, IntItemNormal);
-	INT_FIELD(L"Remaining Percentage", L"%d%%", RemainingPercentage_pct, IntItemNormal);
-	INT_FIELD(L"Remaining Time", L"%d h %d min", RemainingTime_min, IntItemHourMins);
-	INT_FIELD(L"Charge Completion Time", L"%d h %d min", ChargeCompletionTime_min, IntItemHourMins);
-	INT_FIELD(L"Charge Status", L"%d", ChargeStatus, IntItemNormal);
-	INT_FIELD(L"Chemistry", L"%d", Chemistry, IntItemNormal);
-	INT_FIELD(L"HealthStatus", L"%d", HealthStatus, IntItemNormal);
-
-	STR_FIELD(L"Device Name", DeviceName);
-	STR_FIELD(L"Barcode Number", BarcodeNumber);
-	STR_FIELD(L"First Use Date", FirstUseDate);
-	STR_FIELD(L"Manufacturer", Manufacturer);
-	STR_FIELD(L"Manufacture Date", ManufactureDate);
-	STR_FIELD(L"Firmware Version", FirmwareVersion);
-	STR_FIELD(L"Last Condition Date", LastConditionDate);
-
+	AddBatteryListViewEmptyItem(hListView, L"");
 	AddBatteryListViewChargeThresholds(hListView, p);
 
 #undef INT_FIELD
@@ -248,6 +264,38 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	for (size_t i = 0; i < p->numBatteries; i++) {
 		ListView_SetColumnWidth(hListView, i + 1, LVSCW_AUTOSIZE_USEHEADER);
 	}
+}
+
+static void UpdateTitle(HWND hWnd)
+{
+	wchar_t filename[MAX_PATH];
+	if (!GetModuleFileName(NULL, filename, MAX_PATH)) {
+		return;
+	}
+	DWORD dummy;
+	DWORD size = GetFileVersionInfoSize(filename, &dummy);
+	if (!size) {
+		return;
+	}
+	void* data = malloc(size);
+	if (!data) {
+		return;
+	}
+	if (!GetFileVersionInfo(filename, 0, size, data)) {
+		free(data);
+		return;
+	}
+	wchar_t* versionBuf;
+	DWORD versoinLen;
+	if (!VerQueryValue(data, L"\\StringFileInfo\\040904b0\\ProductVersion", &versionBuf, &versoinLen)) {
+		free(data);
+		return;
+	}
+	GetWindowText(hWnd, filename, MAX_PATH);
+	wcscat_s(filename, MAX_PATH, L" ");
+	wcscat_s(filename, MAX_PATH, versionBuf);
+	SetWindowText(hWnd, filename);
+	free(data);
 }
 
 static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -275,6 +323,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 			EndDialog(hDlg, 0);
 			return TRUE;
 		}
+		UpdateTitle(hDlg);
 		InitGeneralListView(p->generalListView);
 		InitBatteryListView(p->batteryListView, p->powerInfo->numBatteries);
 		UpdateGeneralListView(p->generalListView, p->powerInfo);
