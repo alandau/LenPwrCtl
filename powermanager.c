@@ -207,3 +207,8 @@ void UpdatePowerInfo(PowerInfo* p)
     }
     RpcEndExcept
 }
+
+void PowerInfoSetChargeThresholds(PowerInfo* p, size_t batteryIndex, bool enabled, int32_t start, int32_t stop)
+{
+    LpcSetChargeThreshold(p->ctx, (long)(batteryIndex + 1), start, stop);
+}

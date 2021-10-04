@@ -296,7 +296,7 @@ static void RefreshView(HWND hDlg, InstanceData* p)
 	if (p->powerInfo->errorStr) {
 		MessageBox(hDlg, p->powerInfo->errorStr, PROGRAM_NAME, MB_OK | MB_ICONERROR);
 		EndDialog(hDlg, 0);
-		return TRUE;
+		return;
 	}
 	UpdateGeneralListView(p->generalListView, p->powerInfo);
 	UpdateBatteryListView(p->batteryListView, p->powerInfo);
@@ -360,7 +360,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 			RefreshView(hDlg, p);
 			break;
 		case IDC_THRESHOLDS_BUTTON:
-			if (DialogBoxParamWithDefaultFont(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_THRESHOLDS_DIALOG), hDlg, ThresholdsDlgProc, 0)) {
+			if (DialogBoxParamWithDefaultFont(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_THRESHOLDS_DIALOG), hDlg, ThresholdsDlgProc, (LPARAM)p->powerInfo)) {
 				RefreshView(hDlg, p);
 			}
 			break;

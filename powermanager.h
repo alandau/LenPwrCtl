@@ -70,3 +70,6 @@ void UpdatePowerInfo(PowerInfo* p);
 
 // Disconnect from the power manager and free data
 void FreePowerInfo(PowerInfo* p);
+
+// Set charge thresholds on a battery
+void PowerInfoSetChargeThresholds(PowerInfo* p, size_t batteryIndex, bool enabled, int32_t start, int32_t stop);
