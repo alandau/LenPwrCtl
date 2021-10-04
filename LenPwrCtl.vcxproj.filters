@@ -70,4 +70,9 @@
       <Filter>Source Files</Filter>
     </Midl>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="LenPwrCtl.manifest">
+      <Filter>Source Files</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>

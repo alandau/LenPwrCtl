@@ -336,6 +336,17 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 		FreePowerInfo(p->powerInfo);
 		free(p);
 		return TRUE;
+	case WM_DPICHANGED: {
+		RECT* r = (RECT*)lParam;
+		SetWindowPos(hDlg, NULL, r->left, r->top, r->right - r->left, r->bottom - r->top, SWP_NOZORDER | SWP_NOACTIVATE);
+		ListView_SetColumnWidth(p->generalListView, 0, LVSCW_AUTOSIZE_USEHEADER);
+		ListView_SetColumnWidth(p->generalListView, 1, LVSCW_AUTOSIZE_USEHEADER);
+		ListView_SetColumnWidth(p->batteryListView, 0, LVSCW_AUTOSIZE_USEHEADER);
+		for (size_t i = 0; i < p->powerInfo->numBatteries; i++) {
+			ListView_SetColumnWidth(p->batteryListView, i + 1, LVSCW_AUTOSIZE_USEHEADER);
+		}
+		return TRUE;
+	}
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDC_REFRESH_BUTTON:
