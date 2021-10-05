@@ -234,7 +234,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	AddBatteryListViewEmptyItem(hListView, L"Charging Information");
 	INT_FIELD(L"    Current", L"%s%d.%03d A", Current_mA, IntItemDiv1000);
 	INT_FIELD(L"    Wattage", L"%s%d.%03d W", Wattage_mW, IntItemDiv1000);
-	INT_FIELD(L"    Remaining Capacity", L"%s%d.%d Wh", RemainingCapacity_mWh, IntItemDiv1000);
+	INT_FIELD(L"    Remaining Capacity", L"%s%d.%03d Wh", RemainingCapacity_mWh, IntItemDiv1000);
 	AddBatteryListViewBoolItem(hListView, p, L"    On AC Power", SIZE_MAX, offsetof(BatteryInfo, IsOnAcAdapter));
 	INT_FIELD(L"    AC Adapter Wattage", L"%d W", AcAdapterWattage_W, IntItemNormal);
 	INT_FIELD(L"    Charge Status", L"%s (%d)", ChargeStatus, IntItemChargeStatus);
