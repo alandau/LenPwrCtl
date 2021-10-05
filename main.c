@@ -81,6 +81,7 @@ typedef enum {
 	IntItemDiv1000,
 	IntItemHourMins,
 	IntItemChargeStatus,
+	IntItemChemistry,
 } IntItemFlags;
 
 static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t* title, const wchar_t* valueFormat,
@@ -113,6 +114,9 @@ static int AddBatteryListViewIntItem(HWND hListView, PowerInfo* p, const wchar_t
 					break;
 				case IntItemChargeStatus:
 					wsprintf(buf, valueFormat, value == 0 ? L"Idle" : value == 1 ? L"Charging" : value == 2 ? L"Discharging" : L"Unknown", value);
+					break;
+				case IntItemChemistry:
+					wsprintf(buf, valueFormat, value == 0 ? L"NiCd" : value == 1 ? L"NiMH" : value == 2 ? L"Li-Ion" : value == 3 ? L"Li-Polymer" : value == 4 ? L"Silver-Zinc" : L"Unknown", value);
 					break;
 				}
 				item.pszText = buf;
@@ -256,7 +260,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	STR_FIELD(L"    Manufacturer", Manufacturer);
 	STR_FIELD(L"    Manufacture Date", ManufactureDate);
 	INT_FIELD(L"    Serial Number", L"%d", SerialNumber, IntItemNormal);
-	INT_FIELD(L"    Chemistry", L"%d", Chemistry, IntItemNormal);
+	INT_FIELD(L"    Chemistry", L"%s (%d)", Chemistry, IntItemChemistry);
 	STR_FIELD(L"    First Use Date", FirstUseDate);
 	STR_FIELD(L"    Firmware Version", FirmwareVersion);
 
