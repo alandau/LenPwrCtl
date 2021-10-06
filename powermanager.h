@@ -54,6 +54,13 @@ typedef struct PowerInfo {
 
 	FIELD_BOOL(AlwaysOnUsb);
 
+	FIELD_BOOL(AirplanePowerMode);
+	FIELD_BOOL(AirplanePowerModeAutoDetection);
+
+	FIELD_BOOL(CoolMode);
+	FIELD_BOOL(IntelligentCooling);
+	FIELD_BOOL(IntelligentCoolingAutoMode);
+
 	size_t numBatteries;
 	BatteryInfo battaries[MAX_BATTARIES];
 } PowerInfo;

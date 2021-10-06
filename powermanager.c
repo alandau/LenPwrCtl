@@ -113,6 +113,22 @@ void UpdatePowerInfo(PowerInfo* p)
             p->AlwaysOnUsb = value;
         }
 
+        LpcIsAirplanePowerModeCapable(ctx, &capable);
+        p->AirplanePowerModeCapable = p->AirplanePowerModeAutoDetectionCapable = capable;
+        if (capable) {
+            LpcGetAirplanePowerMode(ctx, &enabled);
+            p->AirplanePowerMode = enabled;
+            LpcGetAirplanePowerModeAutoDetection(ctx, &enabled);
+            p->AirplanePowerModeAutoDetection = enabled;
+        }
+
+        LpcIsCoolModeCapable(ctx, &capable); p->CoolModeCapable = capable;
+        LpcGetCoolMode(ctx, &enabled); p->CoolMode = enabled;
+        LpcIsIntelligentCoolingCapable(ctx, &capable); p->IntelligentCooling = capable;
+        LpcGetIntelligentCooling(ctx, &enabled); p->IntelligentCooling = enabled;
+        LpcIsIntelligentCoolingAutoModeSupport(ctx, &capable); p->IntelligentCoolingAutoModeCapable = capable;
+        LpcGetIntelligentCoolingAutoMode(ctx, &enabled); p->IntelligentCoolingAutoMode = enabled;
+
 #define INT_FIELD(name, func) do { \
     func(ctx, batt, &value, &capable); \
     b->name##Capable = capable; \

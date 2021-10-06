@@ -19,7 +19,7 @@ typedef struct InstanceData
 static void InitGeneralListView(HWND hListView)
 {
 	ListView_SetExtendedListViewStyleEx(hListView,
-		LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
+		LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP, LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
 
 	LVCOLUMN lvc;
 
@@ -37,7 +37,7 @@ static void InitGeneralListView(HWND hListView)
 static void InitBatteryListView(HWND hListView, size_t numBatteries)
 {
 	ListView_SetExtendedListViewStyleEx(hListView,
-		LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
+		LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP, LVS_EX_FULLROWSELECT | LVS_EX_LABELTIP);
 
 	LVCOLUMN lvc;
 
@@ -56,22 +56,55 @@ static void InitBatteryListView(HWND hListView, size_t numBatteries)
 	}
 }
 
-static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
+static int AddListViewEmptyItem(HWND hListView, const wchar_t* title)
 {
-	ListView_DeleteAllItems(hListView);
-
 	LVITEM item;
 
 	item.mask = LVIF_TEXT;
 	item.iItem = INT_MAX;
 	item.iSubItem = 0;
-	item.pszText = L"Always-on USB";
+	item.pszText = (wchar_t*)title;
+	item.iItem = ListView_InsertItem(hListView, &item);
+	return item.iItem;
+}
+
+static int AddGeneralListViewBoolItem(HWND hListView, const wchar_t* title,
+	bool capable, bool value)
+{
+	LVITEM item;
+
+	item.mask = LVIF_TEXT;
+	item.iItem = INT_MAX;
+	item.iSubItem = 0;
+	item.pszText = (wchar_t*)title;
 	item.iItem = ListView_InsertItem(hListView, &item);
 	if (item.iItem >= 0) {
 		item.iSubItem = 1;
-		item.pszText = p->AlwaysOnUsbCapable ? (p->AlwaysOnUsb ? L"Enabled" : L"Disabled") : L"N/A";
+		if (capable) {
+			item.pszText = value ? L"Enabled" : L"Disabled";
+		} else {
+			item.pszText = L"N/A";
+		}
 		ListView_SetItem(hListView, &item);
 	}
+	return item.iItem;
+}
+
+static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
+{
+	ListView_DeleteAllItems(hListView);
+
+	AddGeneralListViewBoolItem(hListView, L"Always-on USB", p->AlwaysOnUsbCapable, p->AlwaysOnUsb);
+
+	AddListViewEmptyItem(hListView, L"");
+	AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode", p->AirplanePowerModeCapable, p->AirplanePowerMode);
+	AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode Autodetection", p->AirplanePowerModeAutoDetectionCapable, p->AirplanePowerModeAutoDetection);
+
+	AddListViewEmptyItem(hListView, L"");
+	AddGeneralListViewBoolItem(hListView, L"Cooling Mode", p->CoolModeCapable, p->CoolMode);
+	AddGeneralListViewBoolItem(hListView, L"Intelligent Cooling", p->IntelligentCoolingCapable, p->IntelligentCooling);
+	AddGeneralListViewBoolItem(hListView, L"Intelligent Cooling Auto Mode", p->IntelligentCoolingAutoModeCapable, p->IntelligentCoolingAutoMode);
+
 	ListView_SetColumnWidth(hListView, 0, LVSCW_AUTOSIZE_USEHEADER);
 	ListView_SetColumnWidth(hListView, 1, LVSCW_AUTOSIZE_USEHEADER);
 }
@@ -209,18 +242,6 @@ static int AddBatteryListViewChargeThresholds(HWND hListView, PowerInfo* p)
 	return item.iItem;
 }
 
-static int AddBatteryListViewEmptyItem(HWND hListView, const wchar_t* title)
-{
-	LVITEM item;
-
-	item.mask = LVIF_TEXT;
-	item.iItem = INT_MAX;
-	item.iSubItem = 0;
-	item.pszText = (wchar_t*)title;
-	item.iItem = ListView_InsertItem(hListView, &item);
-	return item.iItem;
-}
-
 static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 {
 	ListView_DeleteAllItems(hListView);
@@ -231,7 +252,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 			offsetof(BatteryInfo, field##Capable), offsetof(BatteryInfo, field))
 #define STR_FIELD(title, field) AddBatteryListViewStrItem(hListView, p, title, offsetof(BatteryInfo, field))
 
-	AddBatteryListViewEmptyItem(hListView, L"Charging Information");
+	AddListViewEmptyItem(hListView, L"Charging Information");
 	INT_FIELD(L"    Current", L"%s%d.%03d A", Current_mA, IntItemDiv1000);
 	INT_FIELD(L"    Wattage", L"%s%d.%03d W", Wattage_mW, IntItemDiv1000);
 	INT_FIELD(L"    Remaining Capacity", L"%s%d.%03d Wh", RemainingCapacity_mWh, IntItemDiv1000);
@@ -243,8 +264,8 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	INT_FIELD(L"    Charge Completion Time", L"%d h %d min", ChargeCompletionTime_min, IntItemHourMins);
 	INT_FIELD(L"    Temperature", L"%d C", Temperature_C, IntItemNormal);
 
-	AddBatteryListViewEmptyItem(hListView, L"");
-	AddBatteryListViewEmptyItem(hListView, L"Health Status");
+	AddListViewEmptyItem(hListView, L"");
+	AddListViewEmptyItem(hListView, L"Health Status");
 	INT_FIELD(L"    Design Capacity", L"%s%d.%03d Wh", DesignCapacity_mWh, IntItemDiv1000);
 	INT_FIELD(L"    Full Charge Capacity", L"%s%d.%03d Wh", FullChargeCapacity_mWh, IntItemDiv1000);
 	INT_FIELD(L"    Design Voltage", L"%s%d.%03d V", DesignVoltage_mV, IntItemDiv1000);
@@ -253,8 +274,8 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	INT_FIELD(L"    Health Status", L"%d", HealthStatus, IntItemNormal);
 	STR_FIELD(L"    Last Condition Date", LastConditionDate);
 
-	AddBatteryListViewEmptyItem(hListView, L"");
-	AddBatteryListViewEmptyItem(hListView, L"Manufacture Information");
+	AddListViewEmptyItem(hListView, L"");
+	AddListViewEmptyItem(hListView, L"Manufacture Information");
 	STR_FIELD(L"    Device Name", DeviceName);
 	STR_FIELD(L"    Barcode Number", BarcodeNumber);
 	STR_FIELD(L"    Manufacturer", Manufacturer);
@@ -264,7 +285,7 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	STR_FIELD(L"    First Use Date", FirstUseDate);
 	STR_FIELD(L"    Firmware Version", FirmwareVersion);
 
-	AddBatteryListViewEmptyItem(hListView, L"");
+	AddListViewEmptyItem(hListView, L"");
 	AddBatteryListViewChargeThresholds(hListView, p);
 
 #undef INT_FIELD
