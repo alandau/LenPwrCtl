@@ -5,6 +5,12 @@
 
 #define MAX_BATTARIES 2
 
+typedef enum {
+	AlwaysOnUsbOff = 0,
+	AlwaysOnUsbWhenSleeping = 1,
+	AlwaysOnUsbWhenSleepingAndOff = 2,
+} AlwaysOnUsbEnum;
+
 #define FIELD_INT(name) bool name##Capable; int32_t name
 #define FIELD_BOOL(name) bool name##Capable; bool name
 
@@ -52,7 +58,7 @@ typedef struct PowerInfo {
 	// Error during the last operation if not NULL
 	wchar_t* errorStr;
 
-	FIELD_BOOL(AlwaysOnUsb);
+	FIELD_INT(AlwaysOnUsb);
 
 	FIELD_BOOL(AirplanePowerMode);
 	FIELD_BOOL(AirplanePowerModeAutoDetection);
@@ -80,3 +86,12 @@ void FreePowerInfo(PowerInfo* p);
 
 // Set charge thresholds on a battery
 void PowerInfoSetChargeThresholds(PowerInfo* p, size_t batteryIndex, bool enabled, int32_t start, int32_t stop);
+
+void PowerInfoSetAlwaysOnUsb(PowerInfo* p, AlwaysOnUsbEnum value);
+
+void PowerInfoSetAirplanePowerMode(PowerInfo* p, bool enabled);
+void PowerInfoSetAirplanePowerModeAutoDetection(PowerInfo* p, bool enabled);
+
+void PowerInfoSetCoolMode(PowerInfo* p, bool enabled);
+void PowerInfoSetIntelligentCooling(PowerInfo* p, bool enabled);
+void PowerInfoSetIntelligentCoolingAutoMode(PowerInfo* p, bool enabled);

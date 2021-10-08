@@ -90,11 +90,33 @@ static int AddGeneralListViewBoolItem(HWND hListView, const wchar_t* title,
 	return item.iItem;
 }
 
+static int AddGeneralListViewUsbItem(HWND hListView, const wchar_t* title,
+	bool capable, AlwaysOnUsbEnum value)
+{
+	LVITEM item;
+
+	item.mask = LVIF_TEXT;
+	item.iItem = INT_MAX;
+	item.iSubItem = 0;
+	item.pszText = (wchar_t*)title;
+	item.iItem = ListView_InsertItem(hListView, &item);
+	if (item.iItem >= 0) {
+		item.iSubItem = 1;
+		if (capable) {
+			item.pszText = value == AlwaysOnUsbOff? L"Disabled" : value == AlwaysOnUsbWhenSleeping ? L"When Sleeping" : L"When Sleeping & Off";
+		} else {
+			item.pszText = L"N/A";
+		}
+		ListView_SetItem(hListView, &item);
+	}
+	return item.iItem;
+}
+
 static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
 {
 	ListView_DeleteAllItems(hListView);
 
-	AddGeneralListViewBoolItem(hListView, L"Always-on USB", p->AlwaysOnUsbCapable, p->AlwaysOnUsb);
+	AddGeneralListViewUsbItem(hListView, L"Always-on USB", p->AlwaysOnUsbCapable, p->AlwaysOnUsb);
 
 	AddListViewEmptyItem(hListView, L"");
 	AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode", p->AirplanePowerModeCapable, p->AirplanePowerMode);
@@ -330,6 +352,7 @@ static void RefreshView(HWND hDlg, InstanceData* p)
 	UpdateGeneralListView(p->generalListView, p->powerInfo);
 	UpdateBatteryListView(p->batteryListView, p->powerInfo);
 	UpdateThresholdsButtonEnabled(p->thresholdsButton, p->powerInfo);
+	EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), FALSE);
 }
 
 static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -364,6 +387,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 		UpdateGeneralListView(p->generalListView, p->powerInfo);
 		UpdateBatteryListView(p->batteryListView, p->powerInfo);
 		UpdateThresholdsButtonEnabled(p->thresholdsButton, p->powerInfo);
+		EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), FALSE);
 		return TRUE;
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
@@ -395,6 +419,19 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 			break;
 		}
 		return TRUE;
+	case WM_NOTIFY:
+		if (wParam == IDC_GENERAL_LIST && ((NMHDR*)lParam)->code == LVN_ITEMCHANGED) {
+			NMLISTVIEW* nm = (NMLISTVIEW*)lParam;
+			if (nm->uChanged & LVIF_STATE) {
+				if (nm->uNewState & LVIS_SELECTED) {
+					EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), nm->iItem == 0);
+				} else {
+					EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), FALSE);
+				}
+			}
+			return TRUE;
+		}
+		break;
 	}
 	return FALSE;
 }

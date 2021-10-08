@@ -226,5 +226,39 @@ void UpdatePowerInfo(PowerInfo* p)
 
 void PowerInfoSetChargeThresholds(PowerInfo* p, size_t batteryIndex, bool enabled, int32_t start, int32_t stop)
 {
+    if (!enabled) {
+        start = 0;
+        stop = 0;
+    }
     LpcSetChargeThreshold(p->ctx, (long)(batteryIndex + 1), start, stop);
+}
+
+void PowerInfoSetAlwaysOnUsb(PowerInfo* p, bool enabled)
+{
+    LpcSetAlwaysOnUSB(p->ctx, enabled);
+}
+
+void PowerInfoSetAirplanePowerMode(PowerInfo* p, bool enabled)
+{
+    LpcSetAirplanePowerMode(p->ctx, enabled);
+}
+
+void PowerInfoSetAirplanePowerModeAutoDetection(PowerInfo* p, bool enabled)
+{
+    LpcSetAirplanePowerModeAutoDetection(p->ctx, enabled);
+}
+
+void PowerInfoSetCoolMode(PowerInfo* p, bool enabled)
+{
+    LpcSetCoolMode(p->ctx, enabled);
+}
+
+void PowerInfoSetIntelligentCooling(PowerInfo* p, bool enabled)
+{
+    LpcSetIntelligentCooling(p->ctx, enabled);
+}
+
+void PowerInfoSetIntelligentCoolingAutoMode(PowerInfo* p, bool enabled)
+{
+    LpcSetIntelligentCoolingAutoMode(p->ctx, enabled);
 }
