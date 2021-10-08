@@ -205,6 +205,7 @@
     <ClInclude Include="powermanager.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="thresholdsdialog.h" />
+    <ClInclude Include="usbdialog.h" />
     <ClInclude Include="version.h" />
   </ItemGroup>
   <ItemGroup>
@@ -223,6 +224,7 @@
     </ClCompile>
     <ClCompile Include="powermanager.c" />
     <ClCompile Include="thresholdsdialog.c" />
+    <ClCompile Include="usbdialog.c" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="pwrmgr.idl" />

@@ -5,6 +5,7 @@
 #include "dialog.h"
 #include "version.h"
 #include "thresholdsdialog.h"
+#include "usbdialog.h"
 
 #define PROGRAM_NAME L"LenPwrCtl"
 
@@ -417,6 +418,20 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 				RefreshView(hDlg, p);
 			}
 			break;
+		case IDC_MODIFY_BUTTON: {
+			int item = ListView_GetNextItem(GetDlgItem(hDlg, IDC_GENERAL_LIST), -1, LVNI_SELECTED);
+			INT_PTR res = DialogBoxParamWithDefaultFont(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_USB_DIALOG), hDlg, UsbDlgProc, (LPARAM)p->powerInfo->AlwaysOnUsb);
+			if (res == -1) {
+				// Cancelled
+				break;
+			}
+			if (item == 0) {
+				// Always-on USB
+				PowerInfoSetAlwaysOnUsb(p->powerInfo, (AlwaysOnUsbEnum)res);
+				RefreshView(hDlg, p);
+			}
+			break;
+		}
 		}
 		return TRUE;
 	case WM_NOTIFY:
@@ -428,6 +443,11 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 				} else {
 					EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), FALSE);
 				}
+			}
+			return TRUE;
+		} else if (wParam == IDC_GENERAL_LIST && ((NMHDR*)lParam)->code == NM_DBLCLK) {
+			if (IsWindowEnabled(GetDlgItem(hDlg, IDC_MODIFY_BUTTON))) {
+				SendMessage(hDlg, WM_COMMAND, IDC_MODIFY_BUTTON, 0);
 			}
 			return TRUE;
 		}

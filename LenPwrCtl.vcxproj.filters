@@ -48,6 +48,9 @@
     <ClInclude Include="thresholdsdialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="usbdialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LenPwrCtl.rc">
@@ -71,6 +74,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thresholdsdialog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="usbdialog.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
