@@ -1,11 +1,13 @@
 #include <Windows.h>
 #include <CommCtrl.h>
+#include <assert.h>
 #include "resource.h"
 #include "powermanager.h"
 #include "dialog.h"
 #include "version.h"
 #include "thresholdsdialog.h"
 #include "usbdialog.h"
+#include "booldialog.h"
 
 #define PROGRAM_NAME L"LenPwrCtl"
 
@@ -117,16 +119,24 @@ static void UpdateGeneralListView(HWND hListView, PowerInfo* p)
 {
 	ListView_DeleteAllItems(hListView);
 
-	AddGeneralListViewUsbItem(hListView, L"Always-on USB", p->AlwaysOnUsbCapable, p->AlwaysOnUsb);
+	int i;
+
+	i = AddGeneralListViewUsbItem(hListView, L"Always-on USB", p->AlwaysOnUsbCapable, p->AlwaysOnUsb);
+	assert(i == 0);
 
 	AddListViewEmptyItem(hListView, L"");
-	AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode", p->AirplanePowerModeCapable, p->AirplanePowerMode);
-	AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode Autodetection", p->AirplanePowerModeAutoDetectionCapable, p->AirplanePowerModeAutoDetection);
+	i = AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode", p->AirplanePowerModeCapable, p->AirplanePowerMode);
+	assert(i == 2);
+	i = AddGeneralListViewBoolItem(hListView, L"Airplane Power Mode Autodetection", p->AirplanePowerModeAutoDetectionCapable, p->AirplanePowerModeAutoDetection);
+	assert(i == 3);
 
 	AddListViewEmptyItem(hListView, L"");
-	AddGeneralListViewBoolItem(hListView, L"Cooling Mode", p->CoolModeCapable, p->CoolMode);
-	AddGeneralListViewBoolItem(hListView, L"Intelligent Cooling", p->IntelligentCoolingCapable, p->IntelligentCooling);
-	AddGeneralListViewBoolItem(hListView, L"Intelligent Cooling Auto Mode", p->IntelligentCoolingAutoModeCapable, p->IntelligentCoolingAutoMode);
+	i = AddGeneralListViewBoolItem(hListView, L"Cooling Mode", p->CoolModeCapable, p->CoolMode);
+	assert(i == 5);
+	i = AddGeneralListViewBoolItem(hListView, L"Intelligent Cooling", p->IntelligentCoolingCapable, p->IntelligentCooling);
+	assert(i == 6);
+	i = AddGeneralListViewBoolItem(hListView, L"Intelligent Cooling Auto Mode", p->IntelligentCoolingAutoModeCapable, p->IntelligentCoolingAutoMode);
+	assert(i == 7);
 
 	ListView_SetColumnWidth(hListView, 0, LVSCW_AUTOSIZE_USEHEADER);
 	ListView_SetColumnWidth(hListView, 1, LVSCW_AUTOSIZE_USEHEADER);
@@ -420,15 +430,50 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 			break;
 		case IDC_MODIFY_BUTTON: {
 			int item = ListView_GetNextItem(GetDlgItem(hDlg, IDC_GENERAL_LIST), -1, LVNI_SELECTED);
-			INT_PTR res = DialogBoxParamWithDefaultFont(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_USB_DIALOG), hDlg, UsbDlgProc, (LPARAM)p->powerInfo->AlwaysOnUsb);
-			if (res == -1) {
-				// Cancelled
-				break;
-			}
-			if (item == 0) {
-				// Always-on USB
+			switch (item) {
+			case 0: { // Always-on USB
+				INT_PTR res = DialogBoxParamWithDefaultFont(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_USB_DIALOG), hDlg, UsbDlgProc, (LPARAM)p->powerInfo->AlwaysOnUsb);
+				if (res == -1) {
+					// Cancelled
+					break;
+				}
 				PowerInfoSetAlwaysOnUsb(p->powerInfo, (AlwaysOnUsbEnum)res);
 				RefreshView(hDlg, p);
+				break;
+			}
+			case 2: case 3: case 5: case 6: case 7: {
+				static struct TableItem {
+					int itemIndex;
+					const wchar_t* title;
+					size_t offset;
+					void (*setter)(PowerInfo*, bool value);
+				} table[] = {
+					{2, L"Airplane Power Mode", offsetof(PowerInfo, AirplanePowerMode), PowerInfoSetAirplanePowerMode},
+					{3, L"Airplane Power Mode Autodetection", offsetof(PowerInfo, AirplanePowerModeAutoDetection), PowerInfoSetAirplanePowerModeAutoDetection},
+					{5, L"Cooling Mode", offsetof(PowerInfo, CoolMode), PowerInfoSetCoolMode},
+					{6, L"Intelligent Cooling", offsetof(PowerInfo, IntelligentCooling), PowerInfoSetIntelligentCooling},
+					{7, L"Intelligent Cooling Auto Mode", offsetof(PowerInfo, IntelligentCoolingAutoMode), PowerInfoSetIntelligentCoolingAutoMode},
+				};
+				struct TableItem* t = NULL;
+				for (size_t i = 0; i < ARRAYSIZE(table); i++) {
+					if (table[i].itemIndex == item) {
+						t = &table[i];
+						break;
+					}
+				}
+				if (!t) {
+					// Not found, shouldn't happen
+					break;
+				}
+				INT_PTR res = BoolDialogBoxWithDefaultFont(hDlg, t->title, *(bool*)((uint8_t*)p->powerInfo + t->offset));
+				if (res == -1) {
+					// Cancelled
+					break;
+				}
+				t->setter(p->powerInfo, (bool)res);
+				RefreshView(hDlg, p);
+				break;
+			}
 			}
 			break;
 		}
@@ -439,7 +484,13 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 			NMLISTVIEW* nm = (NMLISTVIEW*)lParam;
 			if (nm->uChanged & LVIF_STATE) {
 				if (nm->uNewState & LVIS_SELECTED) {
-					EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), nm->iItem == 0);
+					BOOL enabled = (nm->iItem == 0 && p->powerInfo->AlwaysOnUsbCapable) ||
+						(nm->iItem == 2 && p->powerInfo->AirplanePowerModeCapable) ||
+						(nm->iItem == 3 && p->powerInfo->AirplanePowerModeAutoDetectionCapable) ||
+						(nm->iItem == 5 && p->powerInfo->CoolModeCapable) ||
+						(nm->iItem == 6 && p->powerInfo->IntelligentCoolingCapable) ||
+						(nm->iItem == 7 && p->powerInfo->IntelligentCoolingAutoModeCapable);
+						EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), enabled);
 				} else {
 					EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), FALSE);
 				}

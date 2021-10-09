@@ -199,6 +199,7 @@
     <Manifest />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="booldialog.h" />
     <ClInclude Include="dialog.h" />
     <ClInclude Include="midl-x64\pwrmgr_h.h" />
     <ClInclude Include="midl-x86\pwrmgr_h.h" />
@@ -212,6 +213,7 @@
     <ResourceCompile Include="LenPwrCtl.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="booldialog.c" />
     <ClCompile Include="dialog.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="midl-x64\pwrmgr_c.c">

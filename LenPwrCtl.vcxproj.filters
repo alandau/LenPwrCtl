@@ -51,6 +51,9 @@
     <ClInclude Include="usbdialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="booldialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LenPwrCtl.rc">
@@ -77,6 +80,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="usbdialog.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="booldialog.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

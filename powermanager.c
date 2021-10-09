@@ -233,9 +233,9 @@ void PowerInfoSetChargeThresholds(PowerInfo* p, size_t batteryIndex, bool enable
     LpcSetChargeThreshold(p->ctx, (long)(batteryIndex + 1), start, stop);
 }
 
-void PowerInfoSetAlwaysOnUsb(PowerInfo* p, bool enabled)
+void PowerInfoSetAlwaysOnUsb(PowerInfo* p, AlwaysOnUsbEnum value)
 {
-    LpcSetAlwaysOnUSB(p->ctx, enabled);
+    LpcSetAlwaysOnUSB(p->ctx, value);
 }
 
 void PowerInfoSetAirplanePowerMode(PowerInfo* p, bool enabled)
