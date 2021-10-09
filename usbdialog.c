@@ -1,10 +1,12 @@
 #include "usbdialog.h"
+#include "dialog.h"
 #include "resource.h"
 
 INT_PTR CALLBACK UsbDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
 	case WM_INITDIALOG:
+		CenterDialogInParent(hDlg);
 		SendMessage(GetDlgItem(hDlg, IDC_VALUES_COMBO), CB_ADDSTRING, 0, (LPARAM)L"Disabled");
 		SendMessage(GetDlgItem(hDlg, IDC_VALUES_COMBO), CB_ADDSTRING, 0, (LPARAM)L"When Sleeping");
 		SendMessage(GetDlgItem(hDlg, IDC_VALUES_COMBO), CB_ADDSTRING, 0, (LPARAM)L"When Sleeping & Off");

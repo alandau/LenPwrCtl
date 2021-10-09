@@ -377,6 +377,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 
 	switch (msg) {
 	case WM_INITDIALOG: {
+		CenterDialogInParent(hDlg);
 		HICON hIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
 		SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 		SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);

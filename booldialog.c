@@ -12,6 +12,7 @@ static INT_PTR CALLBACK BoolDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 {
 	switch (msg) {
 	case WM_INITDIALOG: {
+		CenterDialogInParent(hDlg);
 		Params* params = (Params*)lParam;
 		SetWindowText(hDlg, params->title);
 		CheckDlgButton(hDlg, IDC_ENABLED_CHECK, params->initialValue);

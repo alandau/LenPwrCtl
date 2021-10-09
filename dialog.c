@@ -82,3 +82,21 @@ INT_PTR DialogBoxWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTemplate, H
 {
 	return DialogBoxParamWithDefaultFont(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, 0);
 }
+
+void CenterDialogInParent(HWND hDlg)
+{
+	RECT parent, self;
+
+	HWND hOwner = GetWindow(hDlg, GW_OWNER);
+	if (hOwner == NULL) {
+		// Desktop window
+		hOwner = GetDesktopWindow();
+	}
+	GetWindowRect(hOwner, &parent);
+	GetWindowRect(hDlg, &self);
+	int xoffset = ((parent.right - parent.left) - (self.right - self.left)) / 2;
+	int yoffset = ((parent.bottom - parent.top) - (self.bottom - self.top)) / 2;
+
+	OffsetRect(&self, parent.left - self.left + xoffset, parent.top - self.top + yoffset);
+	SetWindowPos(hDlg, NULL, self.left, self.top, self.right - self.left, self.bottom - self.top, SWP_NOZORDER | SWP_NOACTIVATE);
+}

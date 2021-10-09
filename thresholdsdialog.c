@@ -1,5 +1,6 @@
 #include "thresholdsdialog.h"
 #include "powermanager.h"
+#include "dialog.h"
 #include "resource.h"
 
 static void EnableStartStopEdits(HWND hDlg, BOOL bEnable)
@@ -20,6 +21,7 @@ INT_PTR CALLBACK ThresholdsDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lP
 
 	switch (msg) {
 	case WM_INITDIALOG:
+		CenterDialogInParent(hDlg);
 		// Read and display battery 0's thresholds
 		CheckDlgButton(hDlg, IDC_ENABLED_CHECK, p->battaries[0].ChargeThresholdEnabled);
 		SetDlgItemInt(hDlg, IDC_START_EDIT, p->battaries[0].ChargeThresholdStart_pct, FALSE);
