@@ -59,7 +59,7 @@ BEGIN
     PUSHBUTTON      "&Refresh",IDC_REFRESH_BUTTON,7,308,50,14
     GROUPBOX        "&General Settings",IDC_STATIC,7,7,177,283
     CONTROL         "",IDC_GENERAL_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,11,19,169,249
-    PUSHBUTTON      "&Modify...", IDC_MODIFY_BUTTON, 71, 272, 50, 14
+    PUSHBUTTON      "&Modify...", IDC_MODIFY_BUTTON,71,272,50,14
     GROUPBOX        "&Battery Settings",IDC_STATIC,188,7,345,315
     CONTROL         "",IDC_BATTERY_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,192,19,337,296
     PUSHBUTTON      "&Charge Thresholds...",IDC_THRESHOLDS_BUTTON,106,308,77,14
@@ -99,6 +99,14 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,24,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,64,24,50,14
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// ICON
+//
+
+IDI_MAIN_ICON ICON "LenPwrCtl.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////

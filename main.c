@@ -377,10 +377,13 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 	}
 
 	switch (msg) {
-	case WM_INITDIALOG:
+	case WM_INITDIALOG: {
+		HICON hIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+		SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+		SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
 		p->generalListView = GetDlgItem(hDlg, IDC_GENERAL_LIST);
 		p->batteryListView = GetDlgItem(hDlg, IDC_BATTERY_LIST);
-		p->thresholdsButton= GetDlgItem(hDlg, IDC_THRESHOLDS_BUTTON);
+		p->thresholdsButton = GetDlgItem(hDlg, IDC_THRESHOLDS_BUTTON);
 		p->powerInfo = GetPowerInfo();
 		if (!p->powerInfo) {
 			MessageBox(hDlg, L"Couldn't allocate memory, exiting.", PROGRAM_NAME, MB_OK | MB_ICONERROR);
@@ -400,6 +403,7 @@ static INT_PTR CALLBACK MainDlgProc(HWND hDlg, UINT msg, WPARAM wParam, LPARAM l
 		UpdateThresholdsButtonEnabled(p->thresholdsButton, p->powerInfo);
 		EnableWindow(GetDlgItem(hDlg, IDC_MODIFY_BUTTON), FALSE);
 		return TRUE;
+	}
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
 		return TRUE;

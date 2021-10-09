@@ -234,6 +234,9 @@
   <ItemGroup>
     <Manifest Include="LenPwrCtl.manifest" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="LenPwrCtl.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

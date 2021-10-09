@@ -93,7 +93,12 @@
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="LenPwrCtl.manifest">
-      <Filter>Source Files</Filter>
+      <Filter>Resource Files</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="LenPwrCtl.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
