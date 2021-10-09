@@ -304,7 +304,6 @@ static void UpdateBatteryListView(HWND hListView, PowerInfo* p)
 	INT_FIELD(L"    Design Voltage", L"%s%d.%03d V", DesignVoltage_mV, IntItemDiv1000);
 	INT_FIELD(L"    Voltage", L"%s%d.%03d V", Voltage_mV, IntItemDiv1000);
 	INT_FIELD(L"    Cycle Count", L"%d", CycleCount, IntItemNormal);
-	INT_FIELD(L"    Health Status", L"%d", HealthStatus, IntItemNormal);
 	STR_FIELD(L"    Last Condition Date", LastConditionDate);
 
 	AddListViewEmptyItem(hListView, L"");
