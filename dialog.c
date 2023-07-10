@@ -53,7 +53,7 @@ INT_PTR DialogBoxParamWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTempla
 	int existingFontNameBytes = (lstrlen((wchar_t*)(data + offset + 6)) + 1) * 2;
 	int newFontNameBytes = (lstrlen(lf.lfFaceName) + 1) * 2;
 
-	BYTE* newTemplate = malloc(size - existingFontNameBytes + newFontNameBytes);
+	BYTE* newTemplate = malloc(size - existingFontNameBytes + newFontNameBytes + 4); // +4 for DWORD alignment
 	if (!newTemplate) {
 		return DialogBoxParam(hInstance, hDialogTemplate, hWndParent, lpDialogFunc, lParam);
 	}
@@ -70,8 +70,18 @@ INT_PTR DialogBoxParamWithDefaultFont(HINSTANCE hInstance, LPCWSTR hDialogTempla
 	newTemplate[offset + 5] = lf.lfCharSet;
 	memcpy(newTemplate + offset + 6, lf.lfFaceName, newFontNameBytes);
 
+	// Align to DWORD
+	int writeOffset = offset + 6 + newFontNameBytes;
+	if (writeOffset % 4 != 0) {
+		writeOffset += 4 - writeOffset % 4;
+	}
+	int readOffset = offset + 6 + existingFontNameBytes;
+	if (readOffset % 4 != 0) {
+		readOffset += 4 - readOffset % 4;
+	}
+
 	// Copy remaining template bytes
-	memcpy(newTemplate + offset + 6 + newFontNameBytes, data + offset + 6 + existingFontNameBytes, size - (offset + 6 + existingFontNameBytes));
+	memcpy(newTemplate + writeOffset, data + readOffset, size - readOffset);
 
 	INT_PTR result = DialogBoxIndirectParam(hInstance, (DLGTEMPLATE*)newTemplate, hWndParent, lpDialogFunc, lParam);
 	free(newTemplate);
